@@ -1,0 +1,32 @@
+name: "Update Docker Compose Version in versions/docker-compose.yaml"
+
+sources:
+  dockerComposeVersion:
+    kind: shell
+    name: Get installed Docker Compose version
+    spec:
+      command: |
+        docker compose version --short 2>/dev/null || docker-compose version --short
+
+conditions: {}
+
+targets:
+  updateDockerComposeVersion:
+    name: Update Docker Compose version in versions/docker-compose.yaml
+    kind: yaml
+    sourceid: dockerComposeVersion
+    spec:
+      file: versions/docker-compose.yaml
+      key: $.docker_compose.version
+
+actions:
+  githubPR:
+    kind: github/pullrequest
+    title: "chore: update docker-compose version"
+    scmid: default
+    spec:
+      automerge: false
+      labels:
+        - dependencies
+      body: |
+        This PR updates the tracked Docker Compose version to the latest value detected by `updatecli apply`.
