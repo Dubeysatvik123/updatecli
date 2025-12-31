@@ -1,5 +1,16 @@
 name: "Update Docker Compose Version in versions/docker-compose.yaml"
 
+scms:
+  default:
+    kind: github
+    spec:
+      user: "Dubeysatvik123"
+      email: "satvikdubey268@gmail.com"
+      owner: "Dubeysatvik123"
+      repository: "updatecli"
+      token: "{{ requiredEnv `GITHUB_TOKEN` }}"
+      branch: main
+
 sources:
   dockerComposeVersion:
     kind: shell
@@ -15,6 +26,7 @@ targets:
     name: Update Docker Compose version in versions/docker-compose.yaml
     kind: yaml
     sourceid: dockerComposeVersion
+    scmid: default
     spec:
       file: versions/docker-compose.yaml
       key: $.docker_compose.version

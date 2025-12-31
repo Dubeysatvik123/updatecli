@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Updatecli for Docker Compose Version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           updatecli apply --config update_docker_compose_version.yml
 
