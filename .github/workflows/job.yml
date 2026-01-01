@@ -2,6 +2,8 @@ name: Run Updatecli
 
 on:
   push:
+    branches:
+      - main
   workflow_dispatch:
   schedule:
     - cron: '0 5 * * *' # every day at 5am UTC
@@ -9,56 +11,30 @@ on:
 jobs:
   updatecli:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
       - name: Install Updatecli
         run: |
           curl -sL https://github.com/updatecli/updatecli/releases/latest/download/updatecli_Linux_x86_64.tar.gz | tar xz
           sudo mv updatecli /usr/local/bin/
-
-      - name: Install Docker Compose (for fetch)
+          updatecli version
+          
+      - name: Install Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose-plugin || sudo apt-get install -y docker-compose || true
-
-      - name: Check for changes
-        run: git status
-
-      - name: Create and checkout feature branch
-        run: |
-         git config user.name "${{ secrets.USERNAME_GIT }}"
-         git config user.email "${{ secrets.MAIL_GIT }}"
-         BRANCH_NAME="docker-compose-update-$(date +'%Y%m%d%H%M%S')"
-         echo "Using branch name: $BRANCH_NAME"
-         git checkout -b "$BRANCH_NAME"
-         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
+          docker compose version || docker-compose version
+          
       - name: Run Updatecli for Docker Compose Version
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
         run: |
           updatecli apply --config update_docker_compose_version.yml
-
-      - name: Check if there are changes
-        id: check_changes
-        run: |
-          git add .
-          if git diff --cached --quiet; then
-            echo "No changes detected."
-            echo "changes=false" >> $GITHUB_OUTPUT
-          else
-            COMMIT_MESSAGE="chore: update docker-compose version - $(date +'%Y-%m-%d %H:%M:%S')"
-            git commit -m "$COMMIT_MESSAGE"
-            git push origin "$BRANCH_NAME"
-            echo "changes=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: pull-request
-        uses: diillson/auto-pull-request@v1.0.1
-        with:
-          source_branch: "${{ env.BRANCH_NAME }}"
-          destination_branch: "main"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-

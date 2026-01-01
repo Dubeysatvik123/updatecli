@@ -4,11 +4,11 @@ scms:
   default:
     kind: github
     spec:
-      user: "{{ requiredEnv `GITHUB_ACTOR` }}"
-      email: "{{ requiredEnv `GITHUB_EMAIL` }}"
-      owner: "{{ requiredEnv `GITHUB_OWNER` }}"
-      repository: "{{ requiredEnv `GITHUB_REPO` }}"
-      token: "{{ requiredEnv `TOKEN_GITHUB` }}"
+      user: "Dubeysatvik123"
+      email: "satvikdubey268@gmail.com"
+      owner: "Dubeysatvik123"
+      repository: "updatecli"
+      token: "{{ requiredEnv `GITHUB_TOKEN` }}"
       branch: main
 
 sources:
